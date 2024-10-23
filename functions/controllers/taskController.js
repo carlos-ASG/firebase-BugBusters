@@ -1,3 +1,5 @@
+const service = require('../db/service')
+
 let tasks = [
   {
     id: 1,
@@ -16,7 +18,7 @@ let tasks = [
   },
 ];
 function getAllTasks() {
-  return tasks;
+  return service.getAllTasks();
 }
 
 function createTask(title, description) {

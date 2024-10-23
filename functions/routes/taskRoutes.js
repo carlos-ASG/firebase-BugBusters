@@ -3,13 +3,16 @@ const router = express.Router();
 const taskController = require('../controllers/taskController')
 
 
-router.get('/', (req, res)=> {
-   const tasks = taskController.getAllTasks();
-   if(tasks.length > 0){
-    res.status(200).json(tasks);
-   }else{
-    res.status(404).json({code:404, message:"task not found"})
-   }
+router.get('/', async (req, res)=> {
+    try{
+        const tasks = await taskController.getAllTasks();
+
+        console.log(tasks)
+
+        return res.status(200).json(tasks);
+    }catch{
+        return res.status(500).json({message: "error"});
+    }
 });
 
 router.post('/', (req, res)=> {
