@@ -17,6 +17,73 @@ const getAllTasks = async () => {
     return tasks;
 }
 
+const createTask = async (title, description,completed,createdAt) => {
+    try{
+        const docRef = await db.collection('Tasks').add({ title, description,completed,createdAt });
+        
+        return {
+            id: docRef.id,
+            description: docRef.data().description,
+            completed: docRef.data().completed,
+            createdAt: docRef.data().createdAt
+        }
+    }catch{
+        return {
+            message: 'Error al insertar los datos'
+        };
+    }
+}
+
+const getTaskById = async (id) => {
+    try{
+        const query = await db.collection('Tasks').doc(id).get();
+
+        return query
+    }catch{
+        return null
+    }
+}
+
+const updateTask = async (id,updatedData) => {
+    console.log(id,updatedData)
+    try{
+        const task = await db
+                        .collection('Tasks')
+                        .doc(id)
+                        .update(updatedData);
+        
+
+        return {
+            code: 200,
+            data: 'Actualizacion hecha con exito'
+        }
+    }catch{
+        return {
+            code: 400,
+            message: 'Error al actualizar la tarea' + id
+        } 
+    }
+}
+
+const deteleTask = async (id) => {
+    try{
+        await db.collection('Tasks').doc(id).delete();
+        return { 
+            code: 200,
+            message: 'Se ha eliminado con exito: ' + id
+        }
+    }catch{
+        return { 
+            code: 400,
+            message: 'Error al eliminar la tarea'
+        }
+    }
+}
+
 module.exports = {
-    getAllTasks
+    getAllTasks,
+    createTask,
+    deteleTask,
+    getTaskById,
+    updateTask
 }

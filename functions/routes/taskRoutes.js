@@ -15,35 +15,53 @@ router.get('/', async (req, res)=> {
     }
 });
 
-router.post('/', (req, res)=> {
-    const { title, description } = req.body;
+router.post('/', async (req, res)=> {
+    const { title, description,completed,createdAt } = req.body;
 
     /*const title = req.body.title;
     const description = req.body.description;*/
-    const newTask = taskController.createTask(title, description);
-    res.status(200).json(newTask);
-
+    const newTask = await taskController.createTask(title, description,completed,createdAt);
+    console.log(newTask)
+    if(newTask.hasOwnProperty('message')){
+        res.status(400).json(newTask)
+    }else{
+        res.status(200).json(newTask)
+    }
+    
 });
 
-router.get('/:id', (req, res)=> {
-    const { id } = req.params;
-    const task = taskController.getTaskById(id);
-    console.log(task);
-    if(task.leng)
-        res.status(200).json(task);
+router.get('/get', async (req, res)=> {
+    const { id } = req.body;
+    const task = await taskController.getTaskById(id);
+
+    if(task != null)
+        res.status(200).json(task.data());
     else
         res.status(404).json({code: 404, message: 'Task not found'});
 });
 
-router.put('/', (req, res) => {
-    const taskUpdated = taskController.updateTask(req.body);
-    res.status(201).json(taskUpdated);
+router.put('/update', async (req, res) => {
+    const {id, ...updatedData} = req.body;
+
+    const taskUpdated = await taskController.updateTask(id,updatedData);
+    if(taskUpdated['code'] == 200){
+        res.status(200).json(taskUpdated);
+    }else{
+        res.status(400).json(taskUpdated);
+
+    }
 });
 
-router.delete('/:id', (req, res) => {
-    const { id } = req.params;
-    const taskDeleted = taskController.deleteTask(id);
-    res.status(200).json(taskDeleted);
+router.delete('/', async (req, res) => {
+    const { id } = req.body;
+    const message = await taskController.deleteTask(id);
+
+    if(message['code'] == 200){
+        res.status(200).json(message);
+    }else{
+        res.status(400).json(message);
+    }
+    
 });
 
 module.exports = router;

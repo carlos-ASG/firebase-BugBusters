@@ -21,37 +21,20 @@ function getAllTasks() {
   return service.getAllTasks();
 }
 
-function createTask(title, description) {
-  const newTask = {
-    id: newID(),
-    title,
-    description,
-  };
-  tasks.push(newTask);
-  return newTask;
+function createTask(title, description,completed,createdAt) {
+  return service.createTask(title, description,completed,createdAt);
 }
 
 function getTaskById(id) {
-  id = parseInt(id);
-  const taskFound = tasks.find((task) => {
-    task.id === id;
-  });
-  //console.log(taskFound);
-  return taskFound;
+  return service.getTaskById(id);
 }
 
-function updateTask(taskToUpdated) {
-  taskToUpdated.id = parseInt(taskToUpdated.id);
-  tasks = tasks.map((t) => (t.id === taskToUpdated.id ? taskToUpdated : t));
-  return taskToUpdated;
+function updateTask(id,updatedData) {
+  return service.updateTask(id,updatedData);
 }
 
 function deleteTask(id) {
-  const _id = parseInt(id);
-  const taskToDelete = getTaskById(_id);
-  console.log("task to delete: " + taskToDelete);
-  tasks = tasks.filter((task) => task.id !== _id);
-  return taskToDelete;
+  return service.deteleTask(id);
 }
 
 function newID() {
