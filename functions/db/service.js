@@ -20,7 +20,7 @@ const getAllTasks = async () => {
 const createTask = async (title, description,completed,createdAt) => {
     try{
         const docRef = await db.collection('Tasks').add({ title, description,completed,createdAt });
-        
+        console.log(docRef)
         return {
             id: docRef.id,
             description: docRef.data().description,
