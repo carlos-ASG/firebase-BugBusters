@@ -20,12 +20,14 @@ const getAllTasks = async () => {
 const createTask = async (title, description,completed,createdAt) => {
     try{
         const docRef = await db.collection('Tasks').add({ title, description,completed,createdAt });
-        
+        const docSnapshot = await docRef.get();  // Consultar el documento para obtener los datos
+
         return {
             id: docRef.id,
-            description: docRef.data().description,
-            completed: docRef.data().completed,
-            createdAt: docRef.data().createdAt
+            title,           // Agregar el título
+            description,
+            completed,
+            createdAt
         }
     }catch{
         return {

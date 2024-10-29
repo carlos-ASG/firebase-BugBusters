@@ -15,10 +15,32 @@ const taskRouters = require('./routes/taskRoutes')
 const express = require('express');
 
 const app = express();
+const swaggerJsdoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
 
+const swaggerOptions = {
+  swaggerDefinition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'API de Tareas',
+      version: '1.0.0',
+      description: 'API para gestionar tareas'
+    },
+    servers: [
+      {
+        url: 'http://localhost:5000/servicioswebu1/us-central1/app'
+      }
+    ]
+  },
+  apis: ['./routes/taskRoutes.js']
+};
+const swaggerDocs = swaggerJsdoc(swaggerOptions);
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 app.use('/task',taskRouters);
-
-
+app.get('/', (req, res) => {
+    res.send('API de Tareas en funcionamiento. Visita /api-docs para la documentación.');
+});
 
 exports.app = functions.https.onRequest(app);
 
