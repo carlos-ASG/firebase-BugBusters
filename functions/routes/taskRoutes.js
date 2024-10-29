@@ -1,6 +1,17 @@
 const express = require('express');
 const router = express.Router();
-const taskController = require('../controllers/taskController')
+const taskController = require('../controllers/taskController');
+const { verifyToken } = require('../middlewares/authMiddleware');  // Importar el middleware de autenticación
+
+/**
+ * @swagger
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ */
 
 /**
  * @swagger
@@ -8,21 +19,22 @@ const taskController = require('../controllers/taskController')
  *   get:
  *     summary: Obtiene todas las tareas
  *     tags: [Tasks]
+ *     security:  # Aquí se indica que esta ruta requiere autenticación
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Lista de tareas obtenida con éxito
  *       500:
  *         description: Error en el servidor
  */
-router.get('/', async (req, res)=> {
-    try{
+router.get('/', verifyToken, async (req, res) => {
+    try {
         const tasks = await taskController.getAllTasks();
-
-        console.log(tasks)
-
+        console.log(tasks);
         return res.status(200).json(tasks);
-    }catch{
-        return res.status(500).json({message: "error"});
+    } catch (error) {
+        console.error('Error al obtener tareas:', error);
+        return res.status(500).json({ message: "Error al obtener tareas" });
     }
 });
 
@@ -32,6 +44,8 @@ router.get('/', async (req, res)=> {
  *   post:
  *     summary: Crea una nueva tarea
  *     tags: [Tasks]
+ *     security:  # Aquí también se indica que esta ruta requiere autenticación
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -54,19 +68,26 @@ router.get('/', async (req, res)=> {
  *       400:
  *         description: Error al crear la tarea
  */
-router.post('/', async (req, res)=> {
-    const { title, description,completed,createdAt } = req.body;
+router.post('/', verifyToken, async (req, res) => {
+    const { title, description, completed, createdAt } = req.body;
 
-    /*const title = req.body.title;
-    const description = req.body.description;*/
-    const newTask = await taskController.createTask(title, description,completed,createdAt);
-    console.log(newTask)
-    if(newTask.hasOwnProperty('message')){
-        res.status(400).json(newTask)
-    }else{
-        res.status(201).json(newTask)
+    console.log('Datos de la tarea:', req.body);
+
+    try {
+        // Llama al controlador para crear la tarea
+        const newTask = await taskController.createTask(title, description, completed, createdAt);
+        console.log("Resultado de Nueva tarea:", newTask);
+
+        // Maneja la respuesta del controlador
+        if (newTask.hasOwnProperty('message')) {
+            return res.status(400).json(newTask);
+        } else {
+            return res.status(201).json(newTask);  // Cambiado a 201 para indicar creación exitosa
+        }
+    } catch (error) {
+        console.error('Error al crear la tarea:', error);
+        return res.status(500).json({ message: 'Error al insertar los datos' });
     }
-    
 });
 
 /**
@@ -75,6 +96,8 @@ router.post('/', async (req, res)=> {
  *   get:
  *     summary: Obtiene una tarea por su ID
  *     tags: [Tasks]
+ *     security:  # También se indica que esta ruta requiere autenticación
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -88,16 +111,20 @@ router.post('/', async (req, res)=> {
  *       404:
  *         description: Tarea no encontrada
  */
-router.get('/:id', async (req, res) => {
+router.get('/:id', verifyToken, async (req, res) => {
     const { id } = req.params;
-    const task = await taskController.getTaskById(id);
-
-    if (task != null)
-        res.status(200).json(task.data());
-    else
-        res.status(404).json({ code: 404, message: 'Task not found' });
+    try {
+        const task = await taskController.getTaskById(id);
+        if (task) {
+            res.status(200).json(task.data());
+        } else {
+            res.status(404).json({ code: 404, message: 'Task not found' });
+        }
+    } catch (error) {
+        console.error('Error al obtener tarea:', error);
+        res.status(500).json({ message: 'Error al obtener la tarea' });
+    }
 });
-
 
 /**
  * @swagger
@@ -105,6 +132,8 @@ router.get('/:id', async (req, res) => {
  *   put:
  *     summary: Actualiza una tarea existente
  *     tags: [Tasks]
+ *     security:  # También se indica que esta ruta requiere autenticación
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -126,15 +155,19 @@ router.get('/:id', async (req, res) => {
  *       400:
  *         description: Error al actualizar la tarea
  */
-router.put('/update', async (req, res) => {
-    const {id, ...updatedData} = req.body;
+router.put('/update', verifyToken, async (req, res) => {
+    const { id, ...updatedData } = req.body;
 
-    const taskUpdated = await taskController.updateTask(id,updatedData);
-    if(taskUpdated['code'] == 200){
-        res.status(200).json(taskUpdated);
-    }else{
-        res.status(400).json(taskUpdated);
-
+    try {
+        const taskUpdated = await taskController.updateTask(id, updatedData);
+        if (taskUpdated['code'] === 200) {
+            res.status(200).json(taskUpdated);
+        } else {
+            res.status(400).json(taskUpdated);
+        }
+    } catch (error) {
+        console.error('Error al actualizar la tarea:', error);
+        res.status(500).json({ message: 'Error al actualizar la tarea' });
     }
 });
 
@@ -144,6 +177,8 @@ router.put('/update', async (req, res) => {
  *   delete:
  *     summary: Elimina una tarea
  *     tags: [Tasks]
+ *     security:  # También se indica que esta ruta requiere autenticación
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -157,14 +192,19 @@ router.put('/update', async (req, res) => {
  *       400:
  *         description: Error al eliminar la tarea
  */
-router.delete('/:id', async (req, res) => {
-    const { id } = req.params; // Obtén el ID desde los parámetros de la URL
-    const result = await taskController.deleteTask(id);
+router.delete('/:id', verifyToken, async (req, res) => {
+    const { id } = req.params;
 
-    if (result && result.message === 'Error al eliminar la tarea') {
-        res.status(400).json(result);
-    } else {
-        res.status(200).json({ message: 'Tarea eliminada con éxito' });
+    try {
+        const message = await taskController.deleteTask(id);
+        if (message['code'] === 200) {
+            res.status(200).json(message);
+        } else {
+            res.status(400).json(message);
+        }
+    } catch (error) {
+        console.error('Error al eliminar la tarea:', error);
+        res.status(500).json({ message: 'Error al eliminar la tarea' });
     }
 });
 

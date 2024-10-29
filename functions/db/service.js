@@ -22,6 +22,7 @@ const createTask = async (title, description,completed,createdAt) => {
         const docRef = await db.collection('Tasks').add({ title, description,completed,createdAt });
         const docSnapshot = await docRef.get();  // Consultar el documento para obtener los datos
 
+        console.log(docRef)
         return {
             id: docRef.id,
             title,           // Agregar el título

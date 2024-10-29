@@ -1,7 +1,8 @@
-const admin = require('firebase-admin')
+const admin = require('firebase-admin');
+const serviceAccount = require('../permissions.json');
 
 admin.initializeApp({
-    credential: admin.credential.cert('./permissions.json')
+    credential: admin.credential.cert(serviceAccount)  // Usa el objeto serviceAccount
 });
 
 const db = admin.firestore();

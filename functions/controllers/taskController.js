@@ -1,4 +1,6 @@
 const service = require('../db/service')
+const db = require('../db/db');
+
 
 let tasks = [
   {
@@ -21,9 +23,29 @@ function getAllTasks() {
   return service.getAllTasks();
 }
 
-function createTask(title, description,completed,createdAt) {
-  return service.createTask(title, description,completed,createdAt);
-}
+const createTask = async (title, description, completed, createdAt) => {
+  try {
+      const newTask = {
+          title,
+          description,
+          completed,
+          createdAt,
+      };
+
+      // Inserta la tarea en Firestore
+      const docRef = await db.collection('Tasks').add(newTask);
+      console.log('Tarea insertada con ID:', docRef.id);
+      
+      // Devuelve la tarea creada, incluyendo su ID
+      return {
+          id: docRef.id,
+          ...newTask,
+      };
+  } catch (error) {
+      console.error('Error al insertar la tarea:', error);
+      return { message: 'Error al insertar los datos' }; // Esto se devolverá si hay un error
+  }
+};
 
 function getTaskById(id) {
   return service.getTaskById(id);

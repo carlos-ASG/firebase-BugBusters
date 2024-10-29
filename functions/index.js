@@ -1,18 +1,9 @@
-/**
- * Import function triggers from their respective submodules:
- *
- * const {onCall} = require("firebase-functions/v2/https");
- * const {onDocumentWritten} = require("firebase-functions/v2/firestore");
- *
- * See a full list of supported triggers at https://firebase.google.com/docs/functions
- */
-
-const {onRequest} = require("firebase-functions/v2/https");
+const express = require('express');
+const { onRequest } = require("firebase-functions/v2/https");
 const logger = require("firebase-functions/logger");
 const functions = require("firebase-functions");
-const taskRouters = require('./routes/taskRoutes')
-
-const express = require('express');
+const taskRouters = require('./routes/taskRoutes');
+const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 const swaggerJsdoc = require('swagger-jsdoc');
@@ -41,13 +32,9 @@ app.use('/task',taskRouters);
 app.get('/', (req, res) => {
     res.send('API de Tareas en funcionamiento. Visita /api-docs para la documentación.');
 });
+app.use(express.json());  // Para manejar las solicitudes JSON
+
+app.use('/task', taskRouters);
+app.use('/auth', authRoutes);
 
 exports.app = functions.https.onRequest(app);
-
-// Create and deploy your first functions
-// https://firebase.google.com/docs/functions/get-started
-
-// exports.helloWorld = onRequest((request, response) => {
-//   logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
