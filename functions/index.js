@@ -15,15 +15,31 @@ const swaggerOptions = {
     info: {
       title: 'API de Tareas',
       version: '1.0.0',
-      description: 'API para gestionar tareas'
+      description: 'API para gestionar tareas\n'+
+      'Alumnos:\n' +
+      '- Christian Isabel López Cantabrana\n'+
+      '- Carlos Alberto Sandoval Guardado\n'+
+      '- José De Jesus Robles Perez\n'+
+      '- Adolfo Ramirez Garcia\n'
+
     },
+    components: {
+      securitySchemes: {
+          bearerAuth: {
+              type: 'http',
+              scheme: 'bearer',
+              bearerFormat: 'JWT'
+          }
+      }
+    },
+    security: [{ bearerAuth: [] }],
     servers: [
       {
         url: 'http://localhost:5000/servicioswebu1/us-central1/app'
       }
     ]
   },
-  apis: ['./routes/taskRoutes.js']
+  apis: ['./routes/taskRoutes.js','./routes/authRoutes.js']
 };
 const swaggerDocs = swaggerJsdoc(swaggerOptions);
 
