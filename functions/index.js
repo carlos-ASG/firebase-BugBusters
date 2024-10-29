@@ -16,11 +16,16 @@ const swaggerOptions = {
       title: 'API de Tareas',
       version: '1.0.0',
       description: 'API para gestionar tareas\n'+
-      'Alumnos:\n' +
+      '-Alumnos:\n' +
       '- Christian Isabel López Cantabrana\n'+
       '- Carlos Alberto Sandoval Guardado\n'+
       '- José De Jesus Robles Perez\n'+
-      '- Adolfo Ramirez Garcia\n'
+      '- Adolfo Ramirez Garcia\n' +
+      '- Repositorios\n\n' + 
+      '- Firebase\n'+
+      '- https://github.com/carlos-ASG/firebase-BugBusters.git\n\n' +
+      '- MongoDB\n' +
+      '- https://github.com/carlos-ASG/mongo-BugBuster.git'
 
     },
     components: {
